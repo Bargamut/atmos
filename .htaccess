@@ -1,0 +1,19 @@
+AddDefaultCharset utf-8
+AddCharset utf-8 *
+
+<IfModule mod_charset.c>
+    CharsetSourceEnc utf-8
+    CharsetDefault utf-8
+</IfModule>
+
+ErrorDocument 400 /error.php?t=400
+ErrorDocument 401 /error.php?t=401
+ErrorDocument 403 /error.php?t=403
+ErrorDocument 404 /error.php?t=404
+ErrorDocument 408 /error.php?t=408
+ErrorDocument 500 /error.php?t=500
+ErrorDocument 501 /error.php?t=501
+ErrorDocument 502 /error.php?t=502
+ErrorDocument 503 /error.php?t=503
+ErrorDocument 504 /error.php?t=504
+ErrorDocument 505 /error.php?t=505

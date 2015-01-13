@@ -1,0 +1,74 @@
+/**
+ * Created with JetBrains PhpStorm.
+ * User: Bargamut
+ * Date: 29.06.12
+ * Time: 5:08
+ */
+
+html, body { height: 100%; margin: 0px; padding: 0px; font-family: calibri; }
+body { background: url('/img/default/bg.png') 100%; background-attachment: fixed; }
+hr {
+    color: #000; /*для IE */
+    background-color: #000; /*для Firefox, Opera, Safari*/
+    border: 0px none;
+    height: 1px; /* высота 1px IE, Firefox, Opera, Safari */
+    clear: both; /* для очистки, если тег идет после float елемента */
+    margin: 0px;
+}
+.button {
+    background-color: #eee;
+    border: 1px #aaa solid;
+    font-weight: bold;
+    cursor: pointer;
+}
+.button:hover {
+    background-color: #aba;
+    border: 1px #787 solid;
+    color: #fff;
+}
+
+.error { padding: 5px 15px; margin: 0px 0px 15px; border: 1px #999 solid; background-color: #fed7ba; }
+.error div { padding: 5px 15px; margin: -5px -15px 5px; background-color: #ddd; border-bottom: 1px #999 solid; font-size: 18px; font-weight: bold; }
+
+.main {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    width: 900px;
+    margin: 0px auto -70px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 15px 3px #333333;
+    -ms-box-shadow: 0px 0px 15px 3px #333333;
+    -moz-box-shadow: 0px 0px 15px 3px #333333;
+    -o-box-shadow: 0px 0px 15px 3px #333333;
+    -webkit-box-shadow: 0px 0px 15px 3px #333333;
+}
+
+.header {
+    padding: 5px 0px 0px;
+    margin: 0px 0px 30px;
+    position: relative;
+    box-shadow: 0px -5px 19px 0px #333333;
+    -ms-box-shadow: 0px -5px 19px 0px #333333;
+    -moz-box-shadow: 0px -5px 19px 0px #333333;
+    -o-box-shadow: 0px -5px 19px 0px #333333;
+    -webkit-box-shadow: 0px -5px 19px 0px #333333;
+}
+.header .annotate { width: 50%; bottom: 40px; right: 100px; position: absolute;}
+.header .menu { padding: 0px 10px; margin: 0px; background-color: #F1E2BA; list-style: none; }
+.header .menu li { padding: 5px 10px; margin: 0px 5px 0px 0px; background-color: #E4B43A; cursor: pointer; display: inline-block; // display: inline; // zoom: 1; }
+.header .menu li:hover { background-color: #E2BE63; }
+.header .menu li a { color: #000000; text-decoration: none; }
+
+.content { padding: 5px 10px 15px; }
+.content .contacts, .content .consult { padding: 0px; margin: 0px 0px 10px; list-style: none; }
+.content .contacts li, .content .consult li { margin: 15px 0px; }
+.content .contacts li table td { padding: 0px 10px 0px 0px; }
+
+.tools, .device { width: 48%; padding: 5px; border: 1px #aaaaaa solid; vertical-align: top; display: inline-block; // display: inline; // zoom: 1; }
+.tools h3 { margin: -5px -5px 5px; padding: 5px 5px 5px 15px; background: #E4B43A; }
+.btnOk { width: 50%; margin: 5px auto; padding: 10px; background: #DEFFAD; border: 1px #78C419 solid; font-weight: bold; display: block; cursor: pointer; }
+.btnOk:hover { background: #96D69C; border: 1px #7BBE7E solid; }
+
+.footer, .push { height: 70px; width: 900px; margin: 0px auto; text-align: center; }
+.footer hr { width: 700px; margin: 0 auto 10px; }
