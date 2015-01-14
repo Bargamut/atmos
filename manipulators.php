@@ -15,12 +15,12 @@
         <div class="header">
             <a href="/"><?=SITE_LOGO?></a>
             <div class="annotate">
-                Разработка, сборка и установка систем контроля доступа, видеонаблюдения и пожароохранных систем.
+                ATMOS - система контроля и управления климатом домашних растений, аквариумов, террариумов.
             </div>
             <?php include('menu.php');?>
         </div>
         <div class="content">
-            <form id="devices" action="/sort.php" method="post" enctype="multipart/form-data">
+            <form id="devices" action="/manipulators.php" method="post" enctype="multipart/form-data">
                 Расстояние: <?=$SITE->getFiltersHtml('distance');?>
                 Тип устройств: <?=$SITE->getFiltersHtml('type');?>
                 <input class="frmReset" type="button" value="Сброс">

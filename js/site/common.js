@@ -26,3 +26,13 @@ function setData() {
         error: function(data) { console.log(data); }
     });
 }
+
+function searchDevices() {
+    $.ajax({
+        type: 'GET',
+        url: 'http://192.168.210.13:80/',
+        data: 'searching',
+        success: function(data) { console.log(data); },
+        error: function(data) { console.log(data); }
+    });
+}
