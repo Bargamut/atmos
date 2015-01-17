@@ -28,11 +28,18 @@ function setData() {
 }
 
 function searchDevices() {
-    $.ajax({
-        type: 'GET',
-        url: 'http://192.168.210.13:80/',
-        data: 'searching',
-        success: function(data) { console.log(data); },
-        error: function(data) { console.log(data); }
-    });
+    for (var i = 1; i <= 254; i++) {
+        $.ajax({
+            type: 'GET',
+            url: 'http://192.168.210.' + i + ':80/',
+            data: 'mode=searching&testing=1&man=watering&man=lighting&man=warming',
+            timeout: 4000,
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (data) {
+                console.log('err');
+            }
+        });
+    }
 }
