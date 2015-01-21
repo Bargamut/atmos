@@ -6,7 +6,7 @@
  */
 
 html, body { height: 100%; margin: 0px; padding: 0px; font-family: calibri; }
-body { background: url('/img/default/bg.png') 100%; background-attachment: fixed; }
+body { background: url('/img/default/bg.jpg') 100%; background-attachment: fixed; }
 hr {
     color: #000; /*для IE */
     background-color: #000; /*для Firefox, Opera, Safari*/
@@ -54,10 +54,10 @@ hr {
     -o-box-shadow: 0px -5px 19px 0px #333333;
     -webkit-box-shadow: 0px -5px 19px 0px #333333;
 }
-.header .annotate { width: 50%; bottom: 40px; right: 100px; position: absolute;}
-.header .menu { padding: 0px 10px; margin: 0px; background-color: #F1E2BA; list-style: none; }
-.header .menu li { padding: 5px 10px; margin: 0px 5px 0px 0px; background-color: #E4B43A; cursor: pointer; display: inline-block; // display: inline; // zoom: 1; }
-.header .menu li:hover { background-color: #E2BE63; }
+.header .annotate { width: 50%; bottom: 100px; right: 86px; position: absolute;}
+.header .menu { padding: 0px 10px; margin: 20px 0px 0px; background-color: #d7ecb2; list-style: none; }
+.header .menu li { padding: 5px 10px; margin: 0px 5px 0px 0px; background-color: #c6d7a6; cursor: pointer; display: inline-block; // display: inline; // zoom: 1; }
+.header .menu li:hover { background-color: #d9ecb6; }
 .header .menu li a { color: #000000; text-decoration: none; }
 
 .content { padding: 5px 10px 15px; }
