@@ -270,14 +270,15 @@ void monitoring() {
       parseParams(queryFromServer);
       char *a = getParam("mode");
       
-      //if (strncmp("mode=searching", queryFromServer, 14) == 0) { answer4serching(); }
       if (strncmp("searching", a, 9) == 0) { answer4serching(); }
       if (strncmp("setting", a, 7) == 0) { setConfigOptions(); }
+      if (strncmp("manipulation", a, 12) == 0) {  }
     }
 
     Serial.print("Closing connection ...");
     // если подключён клиент
     if (client.connected()) {
+      Serial.print(" end");
       client.println(okHeader);
       client.println(jsonResponse);
       client.flush();

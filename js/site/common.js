@@ -8,38 +8,71 @@ function resetForm() {
     $('#devices').submit();
 }
 
-function getData() {
+/**
+ * Запрос данных с датчиков контроллера
+ *
+ * @param ip - IP-адрес контроллера
+ */
+function getData(ip) {
     $.ajax({
         type: 'GET',
-        url: 'http://192.168.210.13:80/',
+        url: 'http://' + ip + ':80/',
+        timeout: 4000,
+        success: function(data) {
+            console.log(data);
+
+            return $.parseJSON(data);
+        },
+        error: function(data) { console.log(data); }
+    });
+}
+
+/**
+ * reconnectTimeout,   // Тайм-аут переподключения
+ * LIGHTNESS_MIN,      // настройки LDR
+ * TEMPERATURE_MIN,    // настройки Barometer
+ * HUMIDY_MIN,         // настройки для Влажности почвы
+ * HUMIDY_MAX,
+ * timeWait,           // интервал полива
+ * timeWatering;       // длительность полива
+ */
+function setControllerOptions() {
+    $.ajax({
+        type: 'GET',
+        url: 'http://' + ip + ':80/',
+        data: 'mode=setting' + options,
         success: function(data) { console.log(data); },
         error: function(data) { console.log(data); }
     });
 }
 
-function setData() {
+/**
+ * Управление контроллером
+ *
+ * @param ip - IP-адрес контроллера
+ */
+function manipulation(ip) {
     $.ajax({
         type: 'GET',
-        url: 'http://192.168.210.13:80/',
-        data: 'a=b&c=d&e=123',
+        url: 'http://' + ip + ':80/',
+        data: 'mode=manipulation' + options,
         success: function(data) { console.log(data); },
         error: function(data) { console.log(data); }
     });
 }
 
+/**
+ * Поиск устройств в сети
+ */
 function searchDevices() {
     for (var i = 1; i <= 254; i++) {
         $.ajax({
             type: 'GET',
-            url: 'http://192.168.210.' + i + ':80/',
-            data: 'mode=searching&testing=1&man=watering&man=lighting&man=warming',
+            url: 'http://' + ip + ':80/',
+            data: 'mode=searching',
             timeout: 4000,
-            success: function (data) {
-                console.log(data);
-            },
-            error: function (data) {
-                console.log('err');
-            }
+            success: function (data) { console.log(data); },
+            error: function (data) { console.log('err'); }
         });
     }
 }
