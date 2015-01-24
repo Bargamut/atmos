@@ -64,11 +64,11 @@ function manipulation(ip) {
 /**
  * Поиск устройств в сети
  */
-function searchDevices() {
+function searchDevices(ip) {
     for (var i = 1; i <= 254; i++) {
         $.ajax({
             type: 'GET',
-            url: 'http://' + ip + ':80/',
+            url: 'http://' + ip.replace(/\*/i, i) + ':80/',
             data: 'mode=searching',
             timeout: 4000,
             success: function (data) { console.log(data); },

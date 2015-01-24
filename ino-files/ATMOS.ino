@@ -8,16 +8,7 @@
 #include <Ethernet.h>
 #include <Barometer.h>
 #include <Wire.h>
-
-// структра описывающие наш параметр
-struct key_param_t{
-    char *key;
-    char *value;
-};
-
-#define MAX_PARAMS 20 // сколько параметров максимально мы умеем парсить
-key_param_t params[MAX_PARAMS]; // в этот массис будем сохранять наши парсенные параметры
-byte parsedParams = 0; // сколько параметров нам удалось напарсить
+#include <AtmosParams.h>
 
 // настройки пинов
 #define pin_GHUM A0  // Влажность почвы
@@ -28,6 +19,8 @@ byte parsedParams = 0; // сколько параметров нам удало�
 #define pin_REL4 2   // Реле №4: < ... >
 #define SD_PIN 4     // SD-карта
 #define pin_KEY 3    // Силовой ключ (отопление, свет)
+
+#define jsonBuf 150
 
 // настройки Ethernet
 byte mac[]                    = { 0x90, 0xA2, 0xDA, 0x0D, 0xA8, 0x77 }; // MAC-адрес
@@ -40,8 +33,8 @@ unsigned int reconnectTimeout = 180000;                                 // Та�
 
 int LIGHTNESS_MIN         = 50;    // настройки LDR
 int TEMPERATURE_MIN       = 20;    // настройки Barometer
-const int HUMIDY_MIN      = 200;   // настройки для Влажности почвы
-const int HUMIDY_MAX      = 700;
+int HUMIDY_MIN            = 20;    // настройки для Влажности почвы
+int HUMIDY_MAX            = 700;
 unsigned int timeWait     = 60000; // интервал полива
 unsigned int timeWatering = 5000;  // длительность полива
 
@@ -66,11 +59,12 @@ char denyHeader[] =
   "\r\n"
   "<h1>401 Unauthorized</h1>\r\n"
 ;
-char jsonResponse[80];
+char jsonResponse[jsonBuf];
 
 EthernetServer server = EthernetServer(80); // Создаём Ethernet-сервер, ожидающий соединения на 80 порт
 EthernetClient client;                      // Создаём клиента, для соединения с указанным IP-адресом
 Barometer myBarometer;                      // Барометр
+AtmosParams atmos;                          // Параметры для обработки запроса
 
 /**
  * Инициализация Ethernet-соединения
@@ -94,7 +88,7 @@ bool initEthernet() {
   }
 }
 
-/*
+/**
  * Ответ на опрос устройств, высылаем свой локальный IP в сети
  */
 void answer4serching() {
@@ -105,24 +99,126 @@ void answer4serching() {
 
   IPAddressConverter ipAddress;
   ipAddress.ipInteger = Ethernet.localIP();
-  char searchResp[] = "{\"device_ip\": \"%d.%d.%d.%d\"}";
 
-  Serial.println("searching");
-  sprintf(jsonResponse, searchResp, ipAddress.ipArray[0], ipAddress.ipArray[1], ipAddress.ipArray[2], ipAddress.ipArray[3]);
+  sprintf(jsonResponse, "{\"device_ip\": \"%d.%d.%d.%d\"}", ipAddress.ipArray[0], ipAddress.ipArray[1], ipAddress.ipArray[2], ipAddress.ipArray[3]);
+}
+
+/**
+ * Опрос датчиков, обновление данных
+ */
+static void getSensorData() {
+  LIGHTNESS    = askLDR();
+  TEMPERATURE  = askTemperature();
+  PRESSURE     = askPressure();
+  ALTITUDE     = askAltitude();
+  G_HUMIDY     = askHumidy();
+  
+  sprintf(jsonResponse,
+    "{"
+      "\"lightness\": %d,"
+      "\"temperature\": %d,"
+      "\"pressure\": %ld,"
+      "\"altitude\": %d,"
+      "\"g_humidy\": %d"
+    "}",
+    LIGHTNESS,
+    TEMPERATURE,
+    PRESSURE,
+    ALTITUDE,
+    G_HUMIDY);
+}
+
+/**
+ * Запрос значений конфурации
+ */
+void getConfigOptions() {
+  sprintf(jsonResponse,
+    "{"
+      "\"reconnect\": %u,"
+      "\"light_min\": %d,"
+      "\"temp_min\": %d,"
+      "\"hum_min\": %d,"
+      "\"hum_max\": %d,"
+      "\"wait\": %u,"
+      "\"watering\": %u"
+    "}",
+    reconnectTimeout,
+    LIGHTNESS_MIN,
+    TEMPERATURE_MIN,
+    HUMIDY_MIN,
+    HUMIDY_MAX,
+    timeWait,
+    timeWatering
+  );
 }
 
 /**
  * Установка новых значений конфурации
  */
-void setConfigOptions() { Serial.println("setting"); }
+void setConfigOptions() {
+  sprintf(jsonResponse, "{\"status\": \"true\"}");
+}
+
+void monitoring() {
+  // при подсоединении клиента появляются байты доступные для чтения:
+  client = server.available(); // если есть в клиенте непрочитанные байты, то возвращаем в client объект, его описывающий
+
+  if (client.available()) {
+    char queryFromServer[client.available()];
+    int i = 0;
+
+    memset(jsonResponse, '\0', jsonBuf);
+
+    // пока есть непрочитанные байты
+    while (client.available()) {
+      queryFromServer[i] = client.read();
+
+      if (queryFromServer[i] == '\n') { queryFromServer[i + 1] = '\0'; break; } // Если встречаем перевод строки, выходим из цикла
+
+      i++;
+    }
+
+    Serial.println(queryFromServer); // печатаем в вывод
+
+    if (strncmp("GET / ", queryFromServer, 6) == 0) {
+      getSensorData();
+    } else if (strncmp("GET /?", queryFromServer, 6) == 0) {
+      atmos.getQueryString(queryFromServer);
+      atmos.parseParams(queryFromServer);
+      char *a = atmos.getParam("mode");
+      
+      Serial.println(a); 
+      
+      if (strncmp("searching", a, 9) == 0)      { Serial.println("searching"); answer4serching(); }
+      if (strncmp("setting", a, 7) == 0)        { Serial.println("setting"); setConfigOptions(); }
+      if (strncmp("getdef", a, 6) == 0)         { Serial.println("getdef"); getConfigOptions(); }
+      if (strncmp("manipulation", a, 12) == 0)  { Serial.println("manipulation"); }
+    }
+
+    Serial.print("Connection ...");
+    // если подключён клиент
+    if (client.connected()) {
+      Serial.print(" send data ... ");
+      Serial.print(okHeader);
+      Serial.print(jsonResponse);
+
+      client.println(okHeader);
+      client.println(jsonResponse);
+      client.flush();
+      client.stop();
+      Serial.print(" closing ... ");
+    }
+    Serial.print("end");
+
+    Serial.println("\n\n");
+  }
+}
 
 /**
  * Спрашиваем освещённость среды
+ * Считываем уровень освещённости (0 - свет, 1023 - темнота), обратнопропорционально
  */
-int askLDR() {
-  // считываем уровень освещённости (0 - свет, 1023 - темнота)
-  return (1023 - analogRead(pin_LDR)); // обратнопропорционально
-}
+int askLDR() { return (1023 - analogRead(pin_LDR)); }
 
 /**
  * Спрашиваем температуру воздуха
@@ -153,22 +249,13 @@ void watering() {
   unsigned long def             = millis();
 
   if (G_HUMIDY != oldhumidy) { oldhumidy = G_HUMIDY; }
-
-  if (G_HUMIDY > HUMIDY_MIN || (wait - def) < (timeWait - timeWatering)) {
-    digitalWrite(pin_REL2, LOW); // Прекращаем полив
-  }
-
+  if (G_HUMIDY > HUMIDY_MIN || (wait - def) < (timeWait - timeWatering)) { digitalWrite(pin_REL2, LOW); } // Прекращаем полив
   if (wait != 0 && (wait - def) > 50) { return; } // если время ещё не вышло
   else                                { wait = 0; }
 
   // если влажность почвы меньше минимума
   if (G_HUMIDY < HUMIDY_MIN) {
     digitalWrite(pin_REL2, HIGH); // Поливаем
-
-    Serial.print("Waiting ");
-    Serial.print(timeWait / 1000);
-    Serial.println(" seconds");
-
     wait = millis() + 1 * timeWait;
     delay(1000);
   }
@@ -179,7 +266,7 @@ void watering() {
  */
 void lighting() {
   bool tooDark = (LIGHTNESS < LIGHTNESS_MIN);
-  
+
   digitalWrite(pin_REL1, tooDark);
 }
 
@@ -193,47 +280,6 @@ void warming() {
 }
 
 /**
- * Опрос датчиков, обновление данных
- */
-static void getSensorData() {
-  Serial.println("asking");
-
-  LIGHTNESS    = askLDR();
-  TEMPERATURE  = askTemperature();
-  PRESSURE     = askPressure();
-  ALTITUDE     = askAltitude();
-  G_HUMIDY     = askHumidy();
-
-  char str[] =
-  "{"
-    "\"lightness\": %d,"
-    "\"temperature\": %d,"
-    "\"pressure\": %ld,"
-    "\"altitude\": %d,"
-    "\"g_humidy\": %d"
-  "}";
-
-  sprintf(
-    jsonResponse,
-    str,
-    LIGHTNESS,
-    TEMPERATURE,
-    PRESSURE,
-    ALTITUDE,
-    G_HUMIDY);
-}
-
-/**
- * Запись данных с датчиков на SD-карту
- */
-void write2SD() {}
-
-/**
- * Чтение данных с SD-карты
- */
-void readFromSD() {}
-
-/**
  * Автоматический контроль данных и управление манипуляторами
  */
 void autoWork() {
@@ -242,107 +288,15 @@ void autoWork() {
   warming(); // греем
 }
 
-void monitoring() {
-  // при подсоединении клиента появляются байты доступные для чтения:
-  client = server.available(); // если есть в клиенте непрочитанные байты, то возвращаем в client объект, его описывающий
-
-  if (client.available()) {
-    char queryFromServer[client.available()];
-    int i = 0;
-
-    jsonResponse[0] = '\0';
-    
-    // пока есть непрочитанные байты
-    while (client.available()) {
-      queryFromServer[i] = client.read();
-
-      if (queryFromServer[i] == '\n') { queryFromServer[i + 1] = '\0'; break; } // Если встречаем перевод строки, выходим из цикла
-
-      i++;
-    }
-    
-    Serial.println(queryFromServer); // печатаем в вывод
-
-    if (strncmp("GET / ", queryFromServer, 6) == 0) {
-      getSensorData();
-    } else if (strncmp("GET /?", queryFromServer, 6) == 0) {
-      getQueryString(queryFromServer);
-      parseParams(queryFromServer);
-      char *a = getParam("mode");
-      
-      if (strncmp("searching", a, 9) == 0) { answer4serching(); }
-      if (strncmp("setting", a, 7) == 0) { setConfigOptions(); }
-      if (strncmp("manipulation", a, 12) == 0) {  }
-    }
-
-    Serial.print("Closing connection ...");
-    // если подключён клиент
-    if (client.connected()) {
-      Serial.print(" end");
-      client.println(okHeader);
-      client.println(jsonResponse);
-      client.flush();
-      client.stop();
-    }
-    
-    Serial.println("\n\n");
-  }
-}
-
-// парсид входящую строку в массив params[] и устанавливает parsedParam в количество прочитанных элементов
-void parseParams(char* inputString) {
-  Serial.println("PARSING");
-  parsedParams = 0; // пока ничего не напарсили
-
-  char* buffer; // лучше так проверять/пропускать вопросилово
-  
-  for (buffer = strtok(inputString, "="); buffer != NULL; buffer = strtok(NULL, "=")) {
-    // парсим ключ
-    params[parsedParams].key = buffer;
-    
-    // парсим значение
-    if ((buffer = strtok(NULL, "&")) != NULL) { params[parsedParams].value = buffer; }
-    else return ; // фигня какая-то, ключ есть, а значения нет, прекращаем парсинг
-    
-    parsedParams++; // отмечаем сколько удалось распарсить
-    
-    if (parsedParams > MAX_PARAMS - 1) return; // больше нет места куда сохранять парсенное.
-  }
-}
-
-/**
- * Ищем параметр с заданным именем
- */
-char *getParam(char *paramName) {
-  for (byte i = 0; i < parsedParams; i++) {
-    if (strncmp(paramName, params[i].key, strlen(paramName)) == 0) {
-      return params[i].value;
-    }
-  }
-
-  return "\0";
-}
-
-/**
- * Вычленяем строку с параметрами запроса
- */
-void getQueryString(char *str) {
-  for (int i = 0; i < strlen(str); i++) {
-    str[i] = str[6 + i];
-
-    if (str[i] == ' ') { str[i] = '\0'; break; } // Если встречаем перевод строки, выходим из цикла
-  }
-}
-
 void setup() {
   Serial.begin(57600);
-  
+
   pinMode(pin_REL4, OUTPUT);
   pinMode(pin_REL3, OUTPUT);
   pinMode(pin_REL2, OUTPUT);
   pinMode(pin_REL1, OUTPUT);
   pinMode(pin_KEY, OUTPUT);
-  
+
   myBarometer.init();
 
   initEthernet();
@@ -353,42 +307,6 @@ void loop() {
   monitoring();
 
   if (automode) {
-    write2SD();
     autoWork();
-  }
-}
-
-
-void getFromServer() {
-  if (client.connect(serv, 80)) {
-    Serial.println("Connected");
-    client.println("GET /search?q=arduino HTTP/1.0");
-    client.println();
-  } else {
-    Serial.println("Connection failed");
-  }
-
-  while (client.available()) {
-    char c = client.read();
-
-    Serial.print(c);
-  }
-
-  if (!client.connected()) {
-    Serial.println("Disconnecting");
-    client.stop();
-    while (true);
-  }
-}
-
-
-// Выводит в Serial массив parsedParams[]
-void printParams() {
-  for (byte i = 0; i < parsedParams; i++) {
-      Serial.print("key \"");
-      Serial.print(params[i].key);
-      Serial.print("\" is \"");
-      Serial.print(params[i].value);
-      Serial.println("\"");
   }
 }
