@@ -41,10 +41,24 @@ class Site {
     public function getOption(&$controller_id) {
         $r = $this->db->query('SELECT id, opt, minimum, val, maximum FROM settings WHERE cid == %d', $controller_id);
 
-        foreach ($r as $v) {
+        return $r;
+    }
 
-        }
+    public function AddController($ip, $name, $desc) {
+        $this->db->query('INSERT INTO controllers (ip, name, desc) VALUES (%s, %s, %s)', array($ip, $name, $desc));
 
-        return $res;
+        return true;
+    }
+
+    public function DelController(&$controller_id) {
+        $this->db->query('DELETE FROM controllers as c, settings as st, sensors as sn WHERE c.id = %d AND st.cid = c.id AND sn.id = c.id LIMIT 1', $controller_id);
+
+        return true;
+    }
+
+    public function getControllersList() {
+        $r = $this->db->query('SELECT * FROM controllers');
+
+        return $r;
     }
 }

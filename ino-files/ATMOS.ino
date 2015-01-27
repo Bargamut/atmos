@@ -33,7 +33,7 @@ unsigned int reconnectTimeout = 180000;                                 // Та�
 
 int LIGHTNESS_MIN         = 50;    // настройки LDR
 int TEMPERATURE_MIN       = 20;    // настройки Barometer
-int HUMIDY_MIN            = 20;    // настройки для Влажности почвы
+int HUMIDY_MIN            = 200;    // настройки для Влажности почвы
 int HUMIDY_MAX            = 700;
 unsigned int timeWait     = 60000; // интервал полива
 unsigned int timeWatering = 5000;  // длительность полива

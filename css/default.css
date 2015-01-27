@@ -63,7 +63,12 @@ hr {
 .content { padding: 5px 10px 15px; }
 .content .contacts, .content .consult { padding: 0px; margin: 0px 0px 10px; list-style: none; }
 .content .contacts li, .content .consult li { margin: 15px 0px; }
-.content .contacts li table td { padding: 0px 10px 0px 0px; }
+.content table.controllersList th { background-color: #d7ecb2; }
+.content table.controllersList td:first-child { font-weight: bold; text-align: center; }
+.content table.controllersList td:nth-child(even) { background-color: #F7FFE8; }
+
+input#findController { width: 100%; height: 50px; border: 0px; background-color: #F5E7C4; font-weight: bold; font-size: 20px; color: #6F613D; cursor: pointer; }
+input#findController:hover { background-color: #FFF1CB; }
 
 .tools, .device { width: 48%; padding: 5px; border: 1px #aaaaaa solid; vertical-align: top; display: inline-block; // display: inline; // zoom: 1; }
 .tools h3 { margin: -5px -5px 5px; padding: 5px 5px 5px 15px; background: #E4B43A; }
