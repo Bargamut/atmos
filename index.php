@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/default.css" />
     <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon">
     <title><?=SITE_TITLE?></title>
-    <script type="text/javascript" src="js/jquery/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="js/site/common.js"></script>
 </head>
 

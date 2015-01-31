@@ -44,16 +44,28 @@ class Site {
         return $r;
     }
 
-    public function AddController($ip, $name, $desc) {
-        $this->db->query('INSERT INTO controllers (ip, name, desc) VALUES (%s, %s, %s)', array($ip, $name, $desc));
+    public function AddController(&$ip, &$name, &$desc) {
+        if ($ip != '' && $name != '' && $desc != '') {
+            $params = array($ip, $name, $desc);
 
-        return true;
+            $this->db->query('INSERT INTO controllers (ip, caption, description) VALUES (%s, %s, %s)', $params);
+
+            return true;
+        }
+
+        return false;
     }
 
     public function DelController(&$controller_id) {
-        $this->db->query('DELETE FROM controllers as c, settings as st, sensors as sn WHERE c.id = %d AND st.cid = c.id AND sn.id = c.id LIMIT 1', $controller_id);
+        if (is_numeric($controller_id)) {
+            $this->db->query('DELETE FROM controllers WHERE id = %d', $controller_id);
+            $this->db->query('DELETE FROM settings WHERE cid = %d', $controller_id);
+            $this->db->query('DELETE FROM sensors WHERE cid = %d', $controller_id);
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
     public function getControllersList() {
