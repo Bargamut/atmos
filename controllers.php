@@ -1,4 +1,8 @@
-<?php include('top.php');?>
+<?php
+    include('top.php');
+
+    $opt = json_encode($SITE->getOptionList());
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,12 +11,18 @@
 
     <link rel="stylesheet" href="css/commons.css" />
     <link rel="stylesheet" href="css/default.css" />
+    <link rel="stylesheet" href="js/jquery/ui/jquery-ui.min.css" />
+
     <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon" />
 
     <script src="js/jquery/jquery-2.1.3.min.js"></script>
+    <script src="js/jquery/ui/jquery-ui.min.js"></script>
     <script src="js/jquery/plugins/jquery.blockUI.min.js"></script>
     <script src="js/site/common.js"></script>
     <script src="js/site/controllers.js"></script>
+    <script>
+        var options = <?=$opt;?>
+    </script>
 </head>
 
 <body>
@@ -45,7 +55,7 @@
                                             '<td>' . $v['ip'] . '</td>' .
                                             '<td>' . $v['caption'] . '</td>' .
                                             '<td>' . $v['description'] . '</td>' .
-                                            '<td class="set"><img src="/img/default/settings.png" /></td>' .
+                                            '<td class="setController"><img rel="' . $v['id'] . '" src="/img/default/settings.png" /></td>' .
                                             '<td class="delController"><img rel="' . $v['id'] . '" src="/img/default/delete.png" /></td>' .
                                         '</tr>';
                                 }
@@ -54,7 +64,7 @@
                                         '<td>' . $controllersList['ip'] . '</td>' .
                                         '<td>' . $controllersList['caption'] . '</td>' .
                                         '<td>' . $controllersList['description'] . '</td>' .
-                                        '<td class="set"><img src="/img/default/settings.png" /></td>' .
+                                        '<td class="setController"><img rel="' . $controllersList['id'] . '" src="/img/default/settings.png" /></td>' .
                                         '<td class="delController"><img rel="' . $controllersList['id'] . '" src="/img/default/delete.png" /></td>' .
                                     '</tr>';
                             }

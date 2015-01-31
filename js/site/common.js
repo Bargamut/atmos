@@ -140,6 +140,124 @@ function delControllers(obj) {
     });
 }
 
+function makeFormSettings(controller) {
+    $.ajax({
+        type: 'POST',
+        url: '/work/do.php',
+        data: 'type=getdef&cid=' + controller.id,
+        complete: function (data) {
+            var curr_opt    = $.parseJSON(data.responseText).data,
+                h           = '<h1>Настройки контроллера</h1>' +
+                            '<table class="settingsList">' +
+                                '<thead>' +
+                                    '<tr><th colspan="3">' + controller.ip + ': ' + controller.caption + '</th></tr>' +
+                                '</thead>' +
+                                '<tbody>';
+
+            $.each(options, function(i, o) {
+                h += '<tr>' +
+                    '<td>' + o.rus_name + '</td>' +
+                    '<td><input class="' + i + ' range" type="text" value="" readonly/></td>' +
+                    '<td>' +
+                        '<div class="' + i + 'Range"></div>' +
+                    '</td>' +
+                '</tr>';
+            });
+
+            h += '<tr>' +
+                    '<td colspan="3">' +
+                        '<input class="commitSettings" type="button" rel="' + controller.id + '" value="Сохранить" />' +
+                        '<input class="cancel" type="button" value="Отмена" />' +
+                    '</td>' +
+                '</tr></tbody></table>';
+
+            console.log(curr_opt);
+
+            $.blockUI({
+                message: h,
+                css: {
+                    cursor: 'default',
+                    minHeight: '70px',
+                    padding: '0px 0px 15px',
+                    top: '15%'
+                },
+                onBlock: function () {
+                    $('.intervalRange').slider({
+                        max: 30,
+                        value: curr_opt[options.interval.id - 1].val,
+                        slide: function (event, ui) { $('.interval').val(ui.value + ' с'); }
+                    });
+
+                    $('.lightnessRange').slider({
+                        max: 1023,
+                        value: curr_opt[options.lightness.id - 1].minimum,
+                        slide: function (event, ui) { $('.lightness').val(ui.value); }
+                    });
+
+                    $('.temperatureRange').slider({
+                        min: -50,
+                        max: 80,
+                        value: curr_opt[options.temperature.id - 1].minimum,
+                        slide: function (event, ui) { $('.temperature').val(ui.value + " C"); }
+                    });
+
+                    $('.humidyRange').slider({
+                        max: 950,
+                        range: true,
+                        values: [ curr_opt[options.humidy.id - 1].minimum, curr_opt[options.humidy.id - 1].maximum ],
+                        slide: function (event, ui) { $('.humidy').val(ui.values[0] + ' ... ' + ui.values[1]); }
+                    });
+
+                    $('.time_wateringRange').slider({
+                        max: 30,
+                        value: curr_opt[options.time_watering.id - 1].val,
+                        slide: function (event, ui) { $('.time_watering').val(ui.value + ' с'); }
+                    });
+
+                    $('.time_waitingRange').slider({
+                        max: 600,
+                        value: curr_opt[options.time_waiting.id - 1].val,
+                        slide: function (event, ui) { $('.time_waiting').val(ui.value + ' мин'); }
+                    });
+
+                    $('.interval').val($('.intervalRange').slider("value") + ' с');
+                    $('.lightness').val($('.lightnessRange').slider("value"));
+                    $('.temperature').val($('.temperatureRange').slider("value") + " C");
+                    $('.humidy').val($('.humidyRange').slider("values", 0) + ' ... ' + $('.humidyRange').slider("values", 1));
+                    $('.time_watering').val($('.time_wateringRange').slider("value") + ' с');
+                    $('.time_waiting').val($('.time_waitingRange').slider("value") + ' мин');
+                }
+            });
+        }
+    });
+}
+
+function commitSettings(obj) {
+    var h = $('.humidy').val().split(' ... ');
+
+    $.each(function(i, o) { h[i] = parseInt(o); });
+
+    var params = {
+        type: 'comset',
+        cid: obj.attr('rel'),
+        interval: { id: options.interval.id, val: parseInt($('.interval').val()) },
+        lightness: { id: options.lightness.id, val: parseInt($('.lightness').val()) },
+        temperature: { id: options.temperature.id, val: parseInt($('.temperature').val()) },
+        humidy: { id: options.humidy.id, val: h },
+        time_watering: { id: options.time_watering.id, val: parseInt($('.time_watering').val()) },
+        time_waiting: { id: options.time_waiting.id, val: parseInt($('.time_waiting').val()) }
+    };
+
+    $.ajax({
+        type: 'POST',
+        url: '/work/do.php',
+        data: params,
+        complete: function (data) {
+
+        }
+    });
+}
+
 /**
  * reconnectTimeout,   // Тайм-аут переподключения
  * LIGHTNESS_MIN,      // настройки LDR

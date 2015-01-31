@@ -38,8 +38,27 @@ class Site {
         }
     }
 
+    public function setOption(&$p) {
+        var_dump($p);
+        $this->db->query('DELETE FROM settings WHERE cid = %d', $p['cid']);
+
+        foreach ($p as $k => $v) {
+            if ($k == 'humidy') {
+                $this->db->query('INSERT INTO settings (cid, optid, minimum, maximum) VALUES (%d, %d, %d, %d)', array($p['cid'], $v['id'], $v['val'][0], $v['val'][1]));
+            }
+
+            if ($k == 'lightness' || $k == 'temperature') {
+                $this->db->query('INSERT INTO settings (cid, optid, minimum) VALUES (%d, %d, %d)', array($p['cid'], $v['id'], $v['val']));
+            }
+
+            if ($k == 'interval' || $k == 'time_watering' || $k == 'time_waiting') {
+                $this->db->query('INSERT INTO settings (cid, optid, val) VALUES (%d, %d, %d)', array($p['cid'], $v['id'], $v['val']));
+            }
+        }
+    }
+
     public function getOption(&$controller_id) {
-        $r = $this->db->query('SELECT id, opt, minimum, val, maximum FROM settings WHERE cid == %d', $controller_id);
+        $r = $this->db->query('SELECT optid, minimum, val, maximum FROM settings WHERE cid = %d', $controller_id);
 
         return $r;
     }
@@ -72,5 +91,17 @@ class Site {
         $r = $this->db->query('SELECT * FROM controllers');
 
         return $r;
+    }
+
+    public function getOptionList() {
+        $res = array();
+
+        $r = $this->db->query('SELECT * FROM options');
+
+        foreach ($r as $k => $v) {
+            $res[$v['opt_name']] = array('id' => $v['id'], 'rus_name' => $v['rus_name']);
+        }
+
+        return $res;
     }
 }
