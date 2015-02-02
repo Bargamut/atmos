@@ -74,6 +74,14 @@ table.controllersList td.delController img { width: 50px; margin: 0px auto; disp
 table.controllersList td.setController img:hover,
 table.controllersList td.delController img:hover { width: 60px; }
 
+table.graphsList th { background-color: #d7ecb2; }
+table.graphsList td { height: 60px; }
+table.graphsList td:first-child { width: 15%; font-weight: bold; text-align: center; }
+table.graphsList td:nth-child(even) { background-color: #F7FFE8; }
+table.graphsList td:last-child { width: 60px; background-color: transparent; color: #9C0000; font-weight: bold; font-size: 20px; }
+table.graphsList td.delController img { width: 50px; margin: 0px auto; display: block; cursor: pointer; }
+table.graphsList td.delController img:hover { width: 60px; }
+
 input#findController { width: 100%; height: 50px; border: 0px; background-color: #F5E7C4; font-weight: bold; font-size: 20px; color: #6F613D; cursor: pointer; }
 input#findController:hover { background-color: #FFF1CB; }
 

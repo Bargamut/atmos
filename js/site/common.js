@@ -4,6 +4,8 @@ $(function() {
 
 /**
  * Поиск устройств в сети
+ *
+ * @param ip
  */
 function searchDevices(ip) {
     var controllers = new Array(), j = 0;
@@ -51,6 +53,11 @@ function searchDevices(ip) {
     });
 }
 
+/**
+ * Построение формы добавления контроллера
+ *
+ * @param controllers
+ */
 function makeForm4AddControllers(controllers) {
     var resHtml = '<h1>Найденные контроллеры</h1>' +
         '<table class="controllersList addControllersForm">' +
@@ -68,6 +75,9 @@ function makeForm4AddControllers(controllers) {
     $('.blockMsg').html(resHtml);
 }
 
+/**
+ * Добавление контроллера в БД
+ */
 function addControllers() {
     var c = {};
 
@@ -105,6 +115,11 @@ function addControllers() {
     });
 }
 
+/**
+ * Удаление контроллера из БД
+ *
+ * @param obj
+ */
 function delControllers(obj) {
     $.blockUI({
         message: '<img src="/img/default/loading.gif" /> Удаление данных контроллера из базы...',
@@ -140,6 +155,11 @@ function delControllers(obj) {
     });
 }
 
+/**
+ * Построение формы Настроек контроллера
+ *
+ * @param controller
+ */
 function makeFormSettings(controller) {
     $.ajax({
         type: 'POST',
@@ -232,6 +252,11 @@ function makeFormSettings(controller) {
     });
 }
 
+/**
+ * Сохранение настроек контроллера в БД
+ *
+ * @param obj
+ */
 function commitSettings(obj) {
     var h = $('.humidy').val().split(' ... ');
 
@@ -297,16 +322,67 @@ function manipulation(ip) {
  *
  * @param ip - IP-адрес контроллера
  */
-function getData(ip) {
-    $.ajax({
-        type: 'GET',
-        url: 'http://' + ip + ':80/',
-        timeout: 4000,
-        complete: function(data) {
-            console.log(data);
+function getData(param) {
+    var controllers = new Array(), j = 0;
 
-            return $.parseJSON(data);
+    $.blockUI({
+        message: '<img src="/img/default/loading.gif" /> Запрос данных у контроллеров...',
+        css: {
+            cursor: 'default',
+            minHeight: '70px',
+            padding: '0px 0px 15px'
         },
-        error: function(data) { console.log(data); }
+        onBlock: function () {
+            $.ajax({
+                type: 'GET',
+                url: 'http://' + param[1] + ':80/',
+                //timeout: 4000,
+                complete: function (data) {
+                    console.log(j);
+                    if (typeof(data.responseText) != 'undefined') {
+                        var datas = $.parseJSON(data.responseText);
+
+                        //datas['id'] = param[0];
+                        //controllers.push(datas);
+                    }
+
+                    j++;
+
+                    if (j == 254) {
+                        if (controllers.length > 0) {
+                            $('.blockMsg').html('ОК!');
+
+                            /*$.ajax({
+                                type: 'POST',
+                                url: '/work/do.php',
+                                data: 'type=getdata&data=' + JSON.stringify(controllers),
+                                complete: function(data2) {
+                                    var res = $.parseJSON(data2.responseText);
+
+                                    if (res.status == 'ok') {
+                                        $('.blockMsg').html('<h1>Запись завершена!</h1>');
+                                        setTimeout('$.unblockUI()', 2000);
+                                    }
+
+                                    if (res.status == 'error') {
+                                        var t = '';
+
+                                        $.each(res.data, function(i, o) {
+                                            t += '<div><b>' + i + '</b>: ' + o.caption + '</div>';
+                                        });
+
+                                        $('.blockMsg').html('<h1>Ошибка записи</h1>' + t + '<input class="cancel" type="button" value="Закрыть" />');
+                                    }
+                                }
+                            });*/
+                        } else {
+                            $('.blockMsg').html('Контроллеров не найдено!');
+                            setTimeout('$.unblockUI()', 3000);
+                        }
+                    }
+                },
+                error: function (data) { }
+            });
+        }
     });
 }

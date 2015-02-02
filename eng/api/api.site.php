@@ -39,7 +39,6 @@ class Site {
     }
 
     public function setOption(&$p) {
-        var_dump($p);
         $this->db->query('DELETE FROM settings WHERE cid = %d', $p['cid']);
 
         foreach ($p as $k => $v) {

@@ -33,7 +33,7 @@ unsigned int reconnectTimeout = 180000;                                 // Та�
 
 int LIGHTNESS_MIN         = 50;    // настройки LDR
 int TEMPERATURE_MIN       = 20;    // настройки Barometer
-int HUMIDY_MIN            = 200;   // настройки для Влажности почвы
+int HUMIDY_MIN            = 200;    // настройки для Влажности почвы
 int HUMIDY_MAX            = 700;
 unsigned int timeWait     = 60000; // интервал полива
 unsigned int timeWatering = 5000;  // длительность полива
@@ -43,6 +43,8 @@ int TEMPERATURE;
 long PRESSURE;
 int ALTITUDE;
 unsigned int G_HUMIDY;
+
+char ip_addr[16] = "127.0.0.1";
 
 bool automode = false; // флаг автоматического режима
 
@@ -67,6 +69,23 @@ Barometer myBarometer;                      // Барометр
 AtmosParams atmos;                          // Параметры для обработки запроса
 
 /**
+ *
+ */
+void initController() {
+  union IPAddressConverter {
+    uint32_t ipInteger;
+    uint8_t ipArray[4];
+  };
+
+  IPAddressConverter ipAddress;
+  ipAddress.ipInteger = Ethernet.localIP();
+  
+  memset(ip_addr, '\0', 16);
+  
+  sprintf(ip_addr, "%d.%d.%d.%d", ipAddress.ipArray[0], ipAddress.ipArray[1], ipAddress.ipArray[2], ipAddress.ipArray[3]);
+}
+
+/**
  * Инициализация Ethernet-соединения
  */
 bool initEthernet() {
@@ -75,7 +94,9 @@ bool initEthernet() {
     Serial.println(Ethernet.localIP());
 
     server.begin(); // ожидаем соединения клиентов на сервер (80 порт)
-
+    
+    initController();
+    
     return true;
   } else {
     Serial.print("FAIL: automode - write to Archive and wait ");
@@ -92,15 +113,7 @@ bool initEthernet() {
  * Ответ на опрос устройств, высылаем свой локальный IP в сети
  */
 void answer4serching() {
-  union IPAddressConverter {
-    uint32_t ipInteger;
-    uint8_t ipArray[4];
-  };
-
-  IPAddressConverter ipAddress;
-  ipAddress.ipInteger = Ethernet.localIP();
-
-  sprintf(jsonResponse, "{\"device_ip\": \"%d.%d.%d.%d\"}", ipAddress.ipArray[0], ipAddress.ipArray[1], ipAddress.ipArray[2], ipAddress.ipArray[3]);
+  sprintf(jsonResponse, "{\"device_ip\": \"%s\"}", ip_addr);
 }
 
 /**
@@ -115,12 +128,14 @@ static void getSensorData() {
   
   sprintf(jsonResponse,
     "{"
+      "\"ip\": \"%s\","
       "\"lightness\": %d,"
       "\"temperature\": %d,"
       "\"pressure\": %ld,"
       "\"altitude\": %d,"
       "\"g_humidy\": %d"
     "}",
+    ip_addr,
     LIGHTNESS,
     TEMPERATURE,
     PRESSURE,
@@ -134,6 +149,7 @@ static void getSensorData() {
 void getConfigOptions() {
   sprintf(jsonResponse,
     "{"
+      "\"ip\": \"%s\","
       "\"reconnect\": %u,"
       "\"light_min\": %d,"
       "\"temp_min\": %d,"
@@ -142,6 +158,7 @@ void getConfigOptions() {
       "\"wait\": %u,"
       "\"watering\": %u"
     "}",
+    ip_addr,
     reconnectTimeout,
     LIGHTNESS_MIN,
     TEMPERATURE_MIN,
@@ -186,8 +203,6 @@ void monitoring() {
       atmos.getQueryString(queryFromServer);
       atmos.parseParams(queryFromServer);
       char *a = atmos.getParam("mode");
-      
-      Serial.println(a); 
       
       if (strncmp("searching", a, 9) == 0)      { Serial.println("searching"); answer4serching(); }
       if (strncmp("setting", a, 7) == 0)        { Serial.println("setting"); setConfigOptions(); }

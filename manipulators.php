@@ -3,11 +3,20 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="css/default.css" />
-    <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon">
     <title><?=SITE_TITLE?></title>
-    <script type="text/javascript" src="js/jquery/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="js/site/common.js"></script>
+
+    <link rel="stylesheet" href="css/commons.css" />
+    <link rel="stylesheet" href="css/default.css" />
+    <link rel="stylesheet" href="js/jquery/plugins/epoch/epoch.min.css" />
+
+    <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon">
+
+    <script src="js/jquery/jquery-2.1.3.min.js"></script>
+    <script src="js/d3/d3.min.js"></script>
+    <script src="js/jquery/plugins/epoch/epoch.min.js"></script>
+    <script src="js/jquery/plugins/jquery.blockUI.min.js"></script>
+    <script src="js/site/common.js"></script>
+    <script src="js/site/controllers.js"></script>
 </head>
 
 <body>
@@ -20,29 +29,63 @@
             <?php include('menu.php');?>
         </div>
         <div class="content">
-            <form id="devices" action="/manipulators.php" method="post" enctype="multipart/form-data">
-                Расстояние: <?=$SITE->getFiltersHtml('distance');?>
-                Тип устройств: <?=$SITE->getFiltersHtml('type');?>
-                <input class="frmReset" type="button" value="Сброс">
-                <br />
-                <br />
-                <div class="tools">
-                    <h3>Передатчики</h3>
-                    Тип установки: <?=$SITE->getFiltersHtml('mounting');?><br />
-                    Температура: <?=$SITE->getFiltersHtml('temperature');?><br />
-                    Напряжение: <?=$SITE->getFiltersHtml('voltage');?>
-                </div>
-                <div class="tools">
-                    <h3>Приёмники</h3>
-                    Количество каналов: <?=$SITE->getFiltersHtml('channel');?><br />
-                    Настройка: <?=$SITE->getFiltersHtml('settingtype');?><br />
-                    Тип камеры: <?=$SITE->getFiltersHtml('videotype');?>
-                </div>
-                <input class="btnOk" type="submit" value="Ок" />
-            </form>
-            <?php $res = $SITE->getProductsHtml(); ?>
-            <div class="device"><?=$res['transmitters'];?></div>
-            <div class="device"><?=$res['recievers'];?></div>
+            <?php
+                $controllersList = $SITE->getControllersList();
+
+                if (count($controllersList) != 0) {
+                    if (gettype($controllersList[0]) != 'NULL') {
+                        foreach ($controllersList as $v) {
+                            echo '<table class="graphsList">' .
+                                '<thead>' .
+                                    '<tr>' .
+                                        '<th>' . $v['ip'] . ': ' . $v['caption'] . '</th>' .
+                                    '</tr>' .
+                                '</thead>' .
+                                '<tbody>' .
+                                    '<tr>' .
+                                        '<td class="graph">' .
+                                            '<div id="area' . $v['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
+                                        '</td>' .
+                                    '</tr>' .
+                                    '<tr>' .
+                                        '<td colspan="3">' .
+                                            '<input class="getDatas" rel="' . $v['id'] . ':' . $v['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                        '</td>' .
+                                    '</tr>' .
+                                '</tbody>' .
+                            '</table>';
+                        }
+                    } else {
+                        echo '<table class="graphsList">' .
+                            '<thead>' .
+                                '<tr>' .
+                                    '<th>' . $controllersList['ip'] . ': ' . $controllersList['caption'] . '</th>' .
+                                '</tr>' .
+                            '</thead>' .
+                            '<tbody>' .
+                                '<tr>' .
+                                    '<td class="graph">' .
+                                        '<div id="area' . $controllersList['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
+                                    '</td>' .
+                                '</tr>' .
+                                '<tr>' .
+                                    '<td colspan="3">' .
+                                        '<input class="getDatas" rel="' . $controllersList['id'] . ':' . $controllersList['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                    '</td>' .
+                                '</tr>' .
+                            '</tbody>' .
+                        '</table>';
+                    }
+                } else {
+                    echo '<table class="graphsList">' .
+                        '<tbody>' .
+                            '<tr>' .
+                                '<td>Контроллеры не установлены</td>' .
+                            '</tr>' .
+                        '</tbody>' .
+                    '</table>';
+                }
+            ?>
         </div>
         <div class="push"></div>
     </div>

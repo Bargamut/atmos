@@ -10,4 +10,9 @@ $(function() {
         });
     });
     $(document).on('click', '.commitSettings', function() { commitSettings($(this)); });
+    $(document).on('click', '.getDatas', function() {
+        var p = $(this).attr('rel').split(':');
+
+        getData(p);
+    });
 });

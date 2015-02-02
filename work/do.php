@@ -58,3 +58,21 @@ if ($_POST['type'] == 'comset') {
 
     $SITE->setOption($params);
 }
+
+if ($_POST['type'] == 'getdat') {
+    $params = json_decode($_POST['data'], true);
+    var_dump($params);
+
+    /*
+    $res = $SITE->getData($_POST['cid']);
+    */
+    if (count($res) == 0) {
+        array_push($err, '"' . $_POST['cid'] . '"');
+    }
+
+    if (count($err) > 0) {
+        echo '{ "status": "error", "cid": ' . implode(',', $err) . '}';
+    } else {
+        echo '{ "status": "ok", "data": ' . json_encode($res) . ' }';
+    }
+}
