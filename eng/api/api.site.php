@@ -38,6 +38,18 @@ class Site {
         }
     }
 
+    public function setDatas(&$p) {
+        foreach ($p as $v) {
+            foreach ($v as $k => $v2) {
+                if ($k != 'ip' && $k != 'cid') {
+                    $this->db->query('INSERT INTO sensors (cid, parameter, val, date) VALUES (%d, %s, %d, NOW())', array($v['cid'], $k, $v2));
+                }
+            }
+        }
+
+        return true;
+    }
+
     public function setOption(&$p) {
         $this->db->query('DELETE FROM settings WHERE cid = %d', $p['cid']);
 

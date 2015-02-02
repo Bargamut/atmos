@@ -323,7 +323,7 @@ function manipulation(ip) {
  * @param ip - IP-адрес контроллера
  */
 function getData(param) {
-    var controllers = new Array(), j = 0;
+    var controllers = new Array();
 
     $.blockUI({
         message: '<img src="/img/default/loading.gif" /> Запрос данных у контроллеров...',
@@ -336,49 +336,46 @@ function getData(param) {
             $.ajax({
                 type: 'GET',
                 url: 'http://' + param[1] + ':80/',
-                //timeout: 4000,
+                timeout: 4000,
                 complete: function (data) {
-                    console.log(j);
                     if (typeof(data.responseText) != 'undefined') {
                         var datas = $.parseJSON(data.responseText);
 
-                        //datas['id'] = param[0];
-                        //controllers.push(datas);
+                        datas['cid'] = parseInt(param[0]);
+                        controllers.push(datas);
                     }
 
-                    j++;
+                    if (controllers.length > 0) {
+                        $('.blockMsg').html('ОК!');
 
-                    if (j == 254) {
-                        if (controllers.length > 0) {
-                            $('.blockMsg').html('ОК!');
+                        $.ajax({
+                            type: 'POST',
+                            url: '/work/do.php',
+                            data: 'type=setdat&data=' + JSON.stringify(controllers),
+                            complete: function(data2) {
+                                $('.blockMsg').html(data2.responseText);
 
-                            /*$.ajax({
-                                type: 'POST',
-                                url: '/work/do.php',
-                                data: 'type=getdata&data=' + JSON.stringify(controllers),
-                                complete: function(data2) {
-                                    var res = $.parseJSON(data2.responseText);
+                                var res = $.parseJSON(data2.responseText);
 
-                                    if (res.status == 'ok') {
-                                        $('.blockMsg').html('<h1>Запись завершена!</h1>');
-                                        setTimeout('$.unblockUI()', 2000);
-                                    }
-
-                                    if (res.status == 'error') {
-                                        var t = '';
-
-                                        $.each(res.data, function(i, o) {
-                                            t += '<div><b>' + i + '</b>: ' + o.caption + '</div>';
-                                        });
-
-                                        $('.blockMsg').html('<h1>Ошибка записи</h1>' + t + '<input class="cancel" type="button" value="Закрыть" />');
-                                    }
+                                if (res.status == 'ok') {
+                                    $('.blockMsg').html('<h1>Запись завершена!</h1>');
+                                    setTimeout('$.unblockUI()', 2000);
                                 }
-                            });*/
-                        } else {
-                            $('.blockMsg').html('Контроллеров не найдено!');
-                            setTimeout('$.unblockUI()', 3000);
-                        }
+
+                                if (res.status == 'error') {
+                                    var t = '';
+
+                                    $.each(res.data, function(i, o) {
+                                        t += '<div><b>' + i + '</b>: ' + o.caption + '</div>';
+                                    });
+
+                                    $('.blockMsg').html('<h1>Ошибка записи</h1>' + t + '<input class="cancel" type="button" value="Закрыть" />');
+                                }
+                            }
+                        });
+                    } else {
+                        $('.blockMsg').html('Контроллеров не найдено!');
+                        setTimeout('$.unblockUI()', 3000);
                     }
                 },
                 error: function (data) { }

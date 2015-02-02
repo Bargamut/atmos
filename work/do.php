@@ -59,13 +59,11 @@ if ($_POST['type'] == 'comset') {
     $SITE->setOption($params);
 }
 
-if ($_POST['type'] == 'getdat') {
+if ($_POST['type'] == 'setdat') {
     $params = json_decode($_POST['data'], true);
-    var_dump($params);
 
-    /*
-    $res = $SITE->getData($_POST['cid']);
-    */
+    $res = $SITE->setDatas($params);
+
     if (count($res) == 0) {
         array_push($err, '"' . $_POST['cid'] . '"');
     }
