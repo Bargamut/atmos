@@ -74,3 +74,17 @@ if ($_POST['type'] == 'setdat') {
         echo '{ "status": "ok", "data": ' . json_encode($res) . ' }';
     }
 }
+
+if ($_POST['type'] == 'getdat') {
+    $res = $SITE->getDatas($_POST['cid'], $_POST['min_date'], $_POST['max_date']);
+
+    if (count($res) == 0) {
+        array_push($err, '"' . $_POST['cid'] . '"');
+    }
+
+    if (count($err) > 0) {
+        echo '{ "status": "error", "cid": ' . implode(',', $err) . '}';
+    } else {
+        echo '{ "status": "ok", "data": ' . json_encode($res) . ' }';
+    }
+}

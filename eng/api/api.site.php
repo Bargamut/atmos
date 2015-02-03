@@ -5,44 +5,11 @@ class Site {
         $this->db = $db;
     }
 
-    protected function setFilters(&$farr) {
-        foreach ($farr as $k => $v) {
-            if ($v != -1 && $v != '') {
-                switch ($k) {
-                    case 'channel':
-                        $this->filters['fields'][] = 'r.channels LIKE %%s%';
-                        break;
-                    case 'distance':
-                        $this->filters['fields'][] = 'r.distance LIKE %%s:like%';
-                        $this->filters['fields'][] = 't.distance LIKE %%s:like%';
-                        $this->filters['values'][] = $v;
-                        break;
-                    case 'mounting': $this->filters['fields'][] = 't.mounting = %d'; break;
-                    case 'settingtype': $this->filters['fields'][] = 'r.setting_type = %d'; break;
-                    case 'temperature':
-                        $this->filters['fields'][] = 't.temp_min <= %d';
-                        $this->filters['fields'][] = 't.temp_max >= %d';
-                        $this->filters['values'][] = $v;
-                        break;
-                    case 'type':
-                        $this->filters['fields'][] = 'r.type LIKE %%s%';
-                        $this->filters['fields'][] = 't.type LIKE %%s%';
-                        $this->filters['values'][] = $v;
-                        break;
-                    case 'videotype': $this->filters['fields'][] = 'r.video_type = %d'; break;
-                    case 'voltage': $this->filters['fields'][] = "t.voltage LIKE %%s:like%"; break;
-                    default: break;
-                }
-                $this->filters['values'][] = $v;
-            }
-        }
-    }
-
     public function setDatas(&$p) {
         foreach ($p as $v) {
             foreach ($v as $k => $v2) {
                 if ($k != 'ip' && $k != 'cid') {
-                    $this->db->query('INSERT INTO sensors (cid, parameter, val, date) VALUES (%d, %s, %d, NOW())', array($v['cid'], $k, $v2));
+                    $this->db->query('INSERT INTO sensors (cid, parameter, val, p_date) VALUES (%d, %s, %d, NOW())', array($v['cid'], $k, $v2));
                 }
             }
         }
@@ -114,5 +81,25 @@ class Site {
         }
 
         return $res;
+    }
+
+    public function getDatas(&$controller_id, &$min_date = '0000-00-00 00:00:00', &$max_date = 'NOW()') {
+        $min_date = $min_date || '0000-00-00 00:00:00';
+        $max_date = $max_date || 'NOW()';
+
+        $filters = ' AND p_date > %s AND p_date < ' . (($max_date == 'NOW()') ? 'NOW()' : '%s');
+
+        $res = $this->db->query('SELECT parameter, val, p_date FROM sensors WHERE cid=%d' . $filters, array($controller_id, $min_date, $max_date));
+
+        $result = array();
+
+        foreach ($res as $k => $v) {
+            if ($v['parameter'] == 'pressure' || $v['parameter'] == 'altitude') continue;
+            if (gettype($result[$v['p_date']]) != 'array') { $result[$v['p_date']] = array(); }
+
+            $result[$v['p_date']][$v['parameter']] = (int)$v['val'];
+        }
+
+        return $result;
     }
 }

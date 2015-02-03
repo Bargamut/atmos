@@ -383,3 +383,18 @@ function getData(param) {
         }
     });
 }
+
+function currentTime() {
+    var dateNow = new Date();
+
+    return dateNow.getFullYear() + "-" +
+        checkZero((dateNow.getMonth() + 1)) + "-" +
+        checkZero(dateNow.getDate()) + " " +
+        checkZero(dateNow.getHours()) + ":" +
+        checkZero(dateNow.getMinutes()) + ":" +
+        checkZero(dateNow.getSeconds());
+}
+
+function checkZero(n) {
+    return (n < 10) ? '0' + n : n;
+}

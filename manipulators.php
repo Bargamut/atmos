@@ -7,16 +7,17 @@
 
     <link rel="stylesheet" href="css/commons.css" />
     <link rel="stylesheet" href="css/default.css" />
-    <link rel="stylesheet" href="js/jquery/plugins/epoch/epoch.min.css" />
+    <link rel="stylesheet" href="js/morris/morris.css" />
 
     <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon">
 
     <script src="js/jquery/jquery-2.1.3.min.js"></script>
-    <script src="js/d3/d3.min.js"></script>
-    <script src="js/jquery/plugins/epoch/epoch.min.js"></script>
     <script src="js/jquery/plugins/jquery.blockUI.min.js"></script>
+    <script src="js/raphael/raphael-min.js"></script>
+    <script src="js/morris/morris.min.js"></script>
     <script src="js/site/common.js"></script>
     <script src="js/site/controllers.js"></script>
+    <script src="js/site/graphs.js"></script>
 </head>
 
 <body>
@@ -43,7 +44,7 @@
                                 '</thead>' .
                                 '<tbody>' .
                                     '<tr>' .
-                                        '<td class="graph">' .
+                                        '<td class="graph" rel="' . $v['id'] . '">' .
                                             '<div id="area' . $v['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
                                         '</td>' .
                                     '</tr>' .
@@ -64,7 +65,7 @@
                             '</thead>' .
                             '<tbody>' .
                                 '<tr>' .
-                                    '<td class="graph">' .
+                                    '<td class="graph" rel="' . $controllersList['id'] . '">' .
                                         '<div id="area' . $controllersList['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
                                     '</td>' .
                                 '</tr>' .
