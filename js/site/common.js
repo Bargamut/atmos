@@ -398,3 +398,11 @@ function currentTime() {
 function checkZero(n) {
     return (n < 10) ? '0' + n : n;
 }
+
+function dateFormat(d) {
+    return d.getFullYear() + '-' + checkZero(d.getMonth() + 1) + '-' + checkZero(d.getDate());
+}
+
+function timeFormat(d) {
+    return checkZero(d.getHours()) + ':' + checkZero(d.getMinutes());
+}

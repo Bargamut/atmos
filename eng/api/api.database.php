@@ -1,8 +1,8 @@
 <?php
 /**
- * Class JF_Database - класс работы с базой данных
+ * Class ATMOS_Database - класс работы с базой данных
  */
-class JF_Database {
+class ATMOS_Database {
     public $hostname;  // сервер БД
     public $dbname;    // имя БД
     public $username;  // имя пользователя БД

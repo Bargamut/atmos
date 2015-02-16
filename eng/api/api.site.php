@@ -1,5 +1,5 @@
 <?php
-class Site {
+class ATMOS_Site {
     protected $db;
     function __construct($farr, &$db) {
         $this->db = $db;

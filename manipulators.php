@@ -7,12 +7,14 @@
 
     <link rel="stylesheet" href="css/commons.css" />
     <link rel="stylesheet" href="css/default.css" />
+    <link rel="stylesheet" href="js/jquery/plugins/datetimepicker/jquery.datetimepicker.css" />
     <link rel="stylesheet" href="js/morris/morris.css" />
 
     <link rel="shortcut icon" href="<?=SITE_ICON?>" type="image/x-icon">
 
     <script src="js/jquery/jquery-2.1.3.min.js"></script>
     <script src="js/jquery/plugins/jquery.blockUI.min.js"></script>
+    <script src="js/jquery/plugins/datetimepicker/jquery.datetimepicker.js"></script>
     <script src="js/raphael/raphael-min.js"></script>
     <script src="js/morris/morris.min.js"></script>
     <script src="js/site/common.js"></script>
@@ -44,13 +46,22 @@
                                 '</thead>' .
                                 '<tbody>' .
                                     '<tr>' .
+                                        '<td colspan="3">' .
+                                            'С <input class="date_since" type="text" value="" />' .
+                                            ' по <input class="date_till" type="text" value="" />' .
+                                            '<input class="getDatas" rel="' . $v['id'] . ':' . $v['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                        '</td>' .
+                                    '</tr>' .
+                                    '<tr>' .
                                         '<td class="graph" rel="' . $v['id'] . '">' .
                                             '<div id="area' . $v['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
                                         '</td>' .
                                     '</tr>' .
                                     '<tr>' .
                                         '<td colspan="3">' .
-                                            '<input class="getDatas" rel="' . $v['id'] . ':' . $v['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                            '<input class="setTemp" type="button" value="Обогрев" /> ' .
+                                            '<input class="setLight" type="button" value="Свет" /> ' .
+                                            '<input class="setEat" type="button" value="Корм / Полив" />' .
                                         '</td>' .
                                     '</tr>' .
                                 '</tbody>' .
@@ -65,13 +76,22 @@
                             '</thead>' .
                             '<tbody>' .
                                 '<tr>' .
+                                    '<td colspan="3">' .
+                                        'С <input class="date_since" type="text" value="" />' .
+                                        ' по <input class="date_till" type="text" value="" />' .
+                                        '<input class="getDatas" rel="' . $controllersList['id'] . ':' . $controllersList['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                    '</td>' .
+                                '</tr>' .
+                                '<tr>' .
                                     '<td class="graph" rel="' . $controllersList['id'] . '">' .
                                         '<div id="area' . $controllersList['id'] . '" class="epoch category10" style="height: 200px;"></div>' .
                                     '</td>' .
                                 '</tr>' .
                                 '<tr>' .
                                     '<td colspan="3">' .
-                                        '<input class="getDatas" rel="' . $controllersList['id'] . ':' . $controllersList['ip'] . '" type="button" value="Опросить контроллеры" />' .
+                                        '<input class="setTemp" type="button" value="Обогрев" /> ' .
+                                        '<input class="setLight" type="button" value="Свет" /> ' .
+                                        '<input class="setEat" type="button" value="Корм / Полив" />' .
                                     '</td>' .
                                 '</tr>' .
                             '</tbody>' .
